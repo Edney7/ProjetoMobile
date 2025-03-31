@@ -2,11 +2,11 @@ import React from "react";
 import { createStackNavigator } from "@react-navigation/stack";
 import Main from "./pages/main";
 import Login from "./pages/login";
-import User from "./pages/user";
+import User from "./pages/recipe";
+import Cadastro from "./pages/cadastro";
 
 import { Ionicons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { Starred, Stars } from "./styles";
 
 const Stack = createStackNavigator();
 
@@ -17,6 +17,7 @@ export default function Routes() {
         name="Login"
         component={Login}
         options={{
+          headerLeft: null,
           title: "LOGIN",
           headerTitleAlign: "center",
           headerStyle: {
@@ -33,7 +34,7 @@ export default function Routes() {
         component={Main}
         options={({ navigation }) => ({
           headerLeft: null,
-          title: "GitHub VIEWER",
+          title: "APP Receitas",
           headerTitleAlign: "center",
           headerStyle: {
             backgroundColor: "#3498db",
@@ -65,6 +66,21 @@ export default function Routes() {
         component={User}
         options={{
           title: "Perfil do Usuário",
+          headerTitleAlign: "center",
+          headerStyle: {
+            backgroundColor: "#3498db",
+          },
+          headerTintColor: "#fff",
+          headerTitleStyle: {
+            fontWeight: "bold",
+          },
+        }}
+      />
+      <Stack.Screen
+        name="Cadastro"
+        component={Cadastro}
+        options={{
+          title: "Cadastro de Usuários",
           headerTitleAlign: "center",
           headerStyle: {
             backgroundColor: "#3498db",
