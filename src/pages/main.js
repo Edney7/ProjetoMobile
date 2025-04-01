@@ -1,6 +1,7 @@
 import React, { Component } from "react";
 import { Keyboard, ActivityIndicator, Alert } from "react-native";
 import Icon from "@expo/vector-icons/MaterialIcons";
+import { useNavigation } from "@react-navigation/native";
 import api from "../services/api";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import {
@@ -38,66 +39,57 @@ export default class Main extends Component {
   };
 
 
-  
   handleAddRecipe = async () => {
     const { recipes, newRecipe } = this.state;
-
+  
     if (!newRecipe.trim()) {
       Alert.alert("Erro", "O nome da receita não pode estar vazio!");
       return;
     }
-
-    if (recipes.find((recipe) => recipe.name.toLowerCase() === newRecipe.toLowerCase())) {
-      Alert.alert("Erro", "Receita já adicionada!");
-      return;
+  
+    this.setState({ loading: true });
+  
+    try {
+      // Busca receitas pelo nome
+      const response = await api.get(`search.php?s=${newRecipe}`);
+      const meals = response.data.meals;
+  
+      if (!meals || meals.length === 0) {
+        Alert.alert("Erro", "Receita não encontrada!");
+        return;
+      }
+  
+      // Pega a primeira receita encontrada
+      const foundRecipe = meals[0];
+  
+      // Verifica se a receita já foi adicionada
+      if (recipes.find(recipe => recipe.idMeal === foundRecipe.idMeal)) {
+        Alert.alert("Erro", "Receita já adicionada!");
+        return;
+      }
+  
+      // Cria o objeto com os dados da API
+      const newRecipeData = {
+        idMeal: foundRecipe.idMeal,
+        name: foundRecipe.strMeal,
+        strMealThumb: foundRecipe.strMealThumb,
+        category: foundRecipe.strCategory,
+        instructions: foundRecipe.strInstructions,
+      };
+  
+      this.setState({
+        recipes: [...recipes, newRecipeData],
+        newRecipe: "",
+        loading: false,
+      });
+  
+      Keyboard.dismiss();
+      
+    } catch (error) {
+      Alert.alert("Erro", "Não foi possível buscar a receita");
+      this.setState({ loading: false });
     }
-
-    const newRecipeData = {
-      name: newRecipe,
-      avatar: "https://via.placeholder.com/150", // Placeholder para imagem da receita
-      bio: "Uma deliciosa receita para você experimentar!", // Descrição genérica
-    };
-
-    this.setState({
-      recipes: [...recipes, newRecipeData],
-      newRecipe: "",
-      loading: false,
-    });
-
-    Keyboard.dismiss();
   };
-
-
-
-  // handleAddUser = async () => {
-  //   try {
-  //     const { recipes, newRecipe.state;
-  //     this.setState({ loading: true });
-  //     const response = await api.get(`/recipes/${newRecipe}`);
-  //     if (recipes.find((recipe) => recipe.login === response.data.login)) {
-  //       alert("Usuário já adicionado!");
-  //       this.setState({ loading: false });
-  //       return;
-  //     }
-  //     const data = {
-  //       name: response.data.name,
-  //       login: response.data.login,
-  //       bio: response.data.bio,
-  //       avatar: response.data.avatar_url,
-  //     };
-  //     console.log(data);
-
-  //     this.setState({
-  //       users: [...users, data],
-  //       newUser: "",
-  //       loading: false,
-  //     });
-  //     Keyboard.dismiss();
-  //   } catch (error) {
-  //     alert("Usuário não encontrado!");
-  //     this.setState({ loading: false });
-  //   }
-  // };
 
   render() {
     const { recipes, newRecipe, loading } = this.state;
@@ -122,32 +114,32 @@ export default class Main extends Component {
           </SubmitButton>
         </Form>
         <List
-          showsVerticalScrollIndicator={false}
-          data={recipes}
-          keyExtractor={(recipe) => recipe.name}
-          renderItem={({ item }) => (
-            <Recipe>
-              <Avatar source={{ uri: item.avatar }} />
-              <Name>{item.name}</Name>
-              <Bio>{item.bio}</Bio>
-              <ProfileButton
-                onPress={() => {
-                  this.props.navigation.navigate("Recipe", { recipe: item });
-                }}
-              >
-                <ProfileButtonText>Ver receita</ProfileButtonText>
-              </ProfileButton>
-              <ProfileButton
-                onPress={() => {
-                  this.setState({recipes: recipes.filter(recipe => recipe.login !== item.login)})
-                }}
-                style={{backgroundColor: "#FFC0CB"}}
-              >
-                <ProfileButtonText>Remover</ProfileButtonText>
-              </ProfileButton>
-            </Recipe>
-          )}
-        />
+  showsVerticalScrollIndicator={false}
+  data={recipes}
+  keyExtractor={(recipe) => recipe.idMeal}
+  renderItem={({ item }) => (
+    <Recipe>
+      <Avatar source={{ uri: item.strMealThumb }} />
+      <Name>{item.name}</Name>
+      <Bio>{item.category}</Bio>
+      <ProfileButton
+        onPress={() => {
+          this.props.navigation.navigate("Recipe", { recipe: item });
+        }}
+      >
+        <ProfileButtonText>Ver receita</ProfileButtonText>
+      </ProfileButton>
+      <ProfileButton
+        onPress={() => {
+          this.setState({recipes: recipes.filter(recipe => recipe.idMeal !== item.idMeal)})
+        }}
+        style={{backgroundColor: "#FFC0CB"}}
+      >
+        <ProfileButtonText>Remover</ProfileButtonText>
+      </ProfileButton>
+    </Recipe>
+  )}
+/>
       </Container>
     );
   }

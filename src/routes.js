@@ -2,7 +2,7 @@ import React from "react";
 import { createStackNavigator } from "@react-navigation/stack";
 import Main from "./pages/main";
 import Login from "./pages/login";
-import User from "./pages/recipe";
+import Recipe from "./pages/recipe";
 import Cadastro from "./pages/cadastro";
 
 import { Ionicons } from "@expo/vector-icons";
@@ -37,7 +37,7 @@ export default function Routes() {
           title: "APP Receitas",
           headerTitleAlign: "center",
           headerStyle: {
-            backgroundColor: "#3498db",
+            backgroundColor: "#ffa500",
           },
           headerTintColor: "#fff",
           headerTitleStyle: {
@@ -62,10 +62,10 @@ export default function Routes() {
         })}
       />
       <Stack.Screen
-        name="User"
-        component={User}
+        name="Recipe"
+        component={Recipe}
         options={{
-          title: "Perfil do Usuário",
+          title: "Detalhes da Receita",
           headerTitleAlign: "center",
           headerStyle: {
             backgroundColor: "#3498db",
